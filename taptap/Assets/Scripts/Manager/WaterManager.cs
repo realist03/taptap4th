@@ -4,32 +4,39 @@ using UnityEngine;
 
 public class WaterManager : MonoBehaviour
 {
-    [Space(5)]
+    [Header("DirtyWater")][Space(5)]
     public float MaxDirtyWaterLevel = 100;
     public float CurrentDirtyWaterLevel;
-    [Space(5)]
+
+    [Header("DirtyWater")][Space(5)]
     public float MaxWaterPurifierWaterLevel = 100;
     public float CurrentWaterPurifierWaterLevel;
-    [Space(5)]
+
+    [Header("DirtyWater")][Space(5)]
     public float MaxBoilerWaterLevel = 100;
     public float CurrentBoilerWaterLevel;
-    [Space(5)]
+
+    [Header("Temperature")][Space(10)]
     public float OutputWaterTemperature;
+    public float PoolWaterTemperature;
     public float RoomTemperature = 26;
-    [Space(5)]
+
+    [Header("ProcessingSpeed")][Space(10)]
     public float HeatingSpeed = 5;
     public float CoolDownSpeed = -1;
+
     [Space(5)]
     public float InputSpeed = 10;
     public float PuringSpeed = 5;
     public float TransportingSpeed = 10;
     public float OutputSpeed = 5;
-    [Space(5)]
-    public bool isHeating;
+    
+    [Header("State")][Space(15)]
+    public bool isInputing;
     public bool isPuring;
-    public bool isInPuting;
     public bool isTransporting;
-    public bool isOutPuting;
+    public bool isHeating;
+    public bool isOutputing;
 
     // Start is called before the first frame update
     void Start()
@@ -40,7 +47,7 @@ public class WaterManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        WaterLevelProcessing(isInPuting, ref CurrentDirtyWaterLevel, MaxDirtyWaterLevel, InputSpeed);
+        WaterLevelProcessing(isInputing, ref CurrentDirtyWaterLevel, MaxDirtyWaterLevel, InputSpeed);
         
         WaterLevelTransporting(isPuring, ref CurrentWaterPurifierWaterLevel, MaxWaterPurifierWaterLevel, ref CurrentDirtyWaterLevel, PuringSpeed);
 
@@ -49,7 +56,7 @@ public class WaterManager : MonoBehaviour
         WaterTemperatureProcessing(true, CurrentBoilerWaterLevel, ref OutputWaterTemperature, CoolDownSpeed,RoomTemperature);
         WaterTemperatureProcessing(isHeating, CurrentBoilerWaterLevel, ref OutputWaterTemperature, HeatingSpeed,0);
 
-        WaterLevelProcessing(isOutPuting, ref CurrentBoilerWaterLevel, MaxBoilerWaterLevel, OutputSpeed);
+        WaterLevelProcessing(isOutputing, ref CurrentBoilerWaterLevel, MaxBoilerWaterLevel, OutputSpeed);
         Debug.Log(CurrentWaterPurifierWaterLevel);
     }
 
