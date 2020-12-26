@@ -56,6 +56,7 @@ float sqr(float x) { return x*x; }
 float3 Pow4(float3 x) { return x*x*x*x; }
 
 float3 Pow5(float3 x) { return x*x*x*x*x; }
+float Pow5(float x) { return x*x*x*x*x; }
 
 float SchlickFresnel(float u)
 {

@@ -30,6 +30,7 @@ public class WaterManager : MonoBehaviour
     public float PuringSpeed = 5;
     public float TransportingSpeed = 10;
     public float OutputSpeed = 5;
+    public float LeakSpeed = -10;
     
     [Header("State")][Space(15)]
     public bool isInputing;
@@ -37,6 +38,12 @@ public class WaterManager : MonoBehaviour
     public bool isTransporting;
     public bool isHeating;
     public bool isOutputing;
+
+    public bool isInputingFull;
+    public bool isPuringFull;
+    public bool isBoilerFull;
+
+    public LeakManager leakManager;
 
     // Start is called before the first frame update
     void Start()
@@ -57,7 +64,9 @@ public class WaterManager : MonoBehaviour
         WaterTemperatureProcessing(isHeating, CurrentBoilerWaterLevel, ref OutputWaterTemperature, HeatingSpeed,0);
 
         WaterLevelProcessing(isOutputing, ref CurrentBoilerWaterLevel, MaxBoilerWaterLevel, OutputSpeed);
-        Debug.Log(CurrentWaterPurifierWaterLevel);
+
+        FullCheck();
+        LeakCheck();
     }
 
     void WaterOutPut()
@@ -70,9 +79,18 @@ public class WaterManager : MonoBehaviour
     
     void WaterLevelProcessing(bool type, ref float level, float maxLevel, float speed)
     {
-        if(type &&  level >= 0 && level < maxLevel)
+        if(type &&  level >= 0 && level <= maxLevel)
         {
             level += speed * Time.deltaTime;
+        }
+
+        if(level < 0)
+        {
+            level = 0;
+        }
+        if(level > maxLevel)
+        {
+            level = maxLevel;
         }
 
     }
@@ -91,6 +109,104 @@ public class WaterManager : MonoBehaviour
         if(type && level > 0 && temperature >= envTemperature && temperature <= 100)
         {
             temperature += speed * Time.deltaTime;
+        }
+    }
+
+    void FullCheck()
+    {
+        if(CurrentDirtyWaterLevel >= MaxDirtyWaterLevel)
+        {
+            isInputingFull = true;
+        }
+        else
+        {
+            isInputingFull = false;
+        }
+
+        if(CurrentWaterPurifierWaterLevel >= MaxWaterPurifierWaterLevel)
+        {
+            isPuringFull = true;
+        }
+        else
+        {
+            isPuringFull = false;
+        }
+
+        if(CurrentBoilerWaterLevel >= MaxBoilerWaterLevel)
+        {
+            isBoilerFull = true;
+        }
+        else
+        {
+            isBoilerFull = false;
+        }
+
+    }
+
+    void LeakCheck()
+    {
+        if(leakManager.isInputingLeak)
+        {
+            for (int i = 0; i < leakManager.InputingPipeLeak.Count; i++)
+            {
+                WaterLevelProcessing(true, ref CurrentDirtyWaterLevel, MaxDirtyWaterLevel, LeakSpeed);
+            }
+        }
+
+        if(leakManager.isPuringLeak)
+        {
+            for (int i = 0; i < leakManager.PuringPipeLeak.Count; i++)
+            {
+                WaterLevelProcessing(true, ref CurrentWaterPurifierWaterLevel, MaxWaterPurifierWaterLevel, LeakSpeed);
+            }
+        }
+
+        if(leakManager.isBoilerLeak)
+        {
+            for (int i = 0; i < leakManager.BoilerPipeLeak.Count; i++)
+            {
+                WaterLevelProcessing(true, ref CurrentBoilerWaterLevel, MaxBoilerWaterLevel, LeakSpeed);
+            }
+        }
+
+    }
+
+    public void CheckSwitch(GameObject obj)
+    {
+        if(obj.name.Contains("DirtyPool"))
+        {
+            if(isInputing)
+            {
+                isInputing = false;
+            }
+            else
+            {
+                isInputing = true;
+            }
+        }
+        else if(obj.name.Contains("Purifier"))
+        {
+            if(isPuring)
+            {
+                isPuring = false;
+            }
+            else
+            {
+                isPuring = true;
+            }
+        }
+        else if(obj.name.Contains("Boiler"))
+        {
+            if(isHeating)
+            {
+                isHeating = false;
+                isTransporting = false;
+            }
+            else
+            {
+                isHeating = true;
+                isTransporting = true;
+            }
         }
     }
 

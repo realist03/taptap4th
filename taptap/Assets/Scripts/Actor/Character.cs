@@ -6,7 +6,7 @@ public class Character : MonoBehaviour
 {
     public float MoveSpeed;
     public float RotateSpeed;
-
+    public Transform RayStartPos;
     // Start is called before the first frame update
     void Start()
     {
