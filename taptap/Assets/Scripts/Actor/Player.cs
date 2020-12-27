@@ -5,22 +5,27 @@ using UnityEngine;
 public class Player : Character
 {
     public float Coins;
-    private float interactiveTime = 1.5f;
+    public float timer;
+
+    private float interactiveTime = 1;
     private float xInput;
     private float yInput;
 
     private Ray ray;
     private RaycastHit hit;
-    private float timer;
 
     private WaterManager waterManager;
     private LeakManager leakManager;
+    private UIManager UIManager;
+    private GameObject curInteractive;
+    
     // Start is called before the first frame update
     void Start()
     {
         GameObject manager = GameObject.Find("Manager");
         waterManager = manager.GetComponent<WaterManager>();
         leakManager = manager.GetComponent<LeakManager>();
+        UIManager = manager.GetComponent<UIManager>();
     }
 
     // Update is called once per frame
@@ -28,36 +33,53 @@ public class Player : Character
     {
         xInput = Input.GetAxis("Horizontal");
         yInput = Input.GetAxis("Vertical");
-        Move(xInput, yInput);
-        Rotate(xInput, yInput);
 
-        CheckInteractiveObject();
-        if(hit.collider != null)
+        CheckInteractive();
+        if(curInteractive != null)
         {
-            if(hit.transform.gameObject.tag == "Leak")
+            Debug.Log("curObj: " + curInteractive.name);
+            if(curInteractive.tag == "Leak")
             {
+                //if(!Input.GetKeyDown(KeyCode.Space)) return;
                 if(Input.GetKey(KeyCode.Space))
                 {
                     timer += Time.deltaTime;
                     if(timer >= interactiveTime)
                     {
-                        leakManager.DestroyLeak(hit.transform.gameObject);
+                        leakManager.DestroyLeak(curInteractive);
+                        UIManager.DestroyUI();
                         timer = 0;
                     }
                 }
+                else
+                {
+                    if(timer > 0)
+                    {
+                        timer -= Time.deltaTime/2;
+                    }
+                }
+                UIManager.FillImage(timer);
 
             }
 
-            if(hit.transform.gameObject.tag == "Machine")
+            if(curInteractive.tag == "Machine")
             {
                 if(Input.GetKeyDown(KeyCode.Space))
                 {
-                    waterManager.CheckSwitch(hit.transform.gameObject);
+                    waterManager.CheckSwitch(curInteractive);
                 }
             }
 
         }
         base.Update();
+    }
+
+    protected override void FixedUpdate() 
+    {
+        Move(xInput, yInput);
+        Rotate(xInput, yInput);
+        
+        base.FixedUpdate();
     }
 
     void Move(float deltaX, float deltaY)
@@ -77,28 +99,48 @@ public class Player : Character
         }
     }
 
-    void CheckInteractiveObject()
-    {
-        ray.origin = RayStartPos.position;
-        ray.direction = transform.forward;
-        Debug.DrawRay(ray.origin, ray.direction);
-        if (Physics.Raycast(ray.origin, ray.direction, out hit, 3, 1 << LayerMask.NameToLayer("Interactive")))
-        {
-            Debug.Log(hit.transform.name);
-        }
-    }
-
-    // void OnCollisionStay(Collision other)
+    // void CheckInteractiveObject()
     // {
-    //     //Debug.Log(other.gameObject.name);
-    //     if (other.gameObject.layer == 1 << LayerMask.NameToLayer("Pipe"))
+    //     ray.origin = RayStartPos.position;
+    //     ray.direction = transform.forward;
+    //     Debug.DrawRay(ray.origin, ray.direction);
+    //     if (Physics.Raycast(ray.origin, ray.direction, out hit, 3, 1 << LayerMask.NameToLayer("Interactive")))
     //     {
     //         Debug.Log(hit.transform.name);
     //     }
     // }
-    void OnDrawGizmos()
+
+    void OnTriggerStay(Collider other) 
     {
-        //Gizmos.DrawWireSphere(hit.transform.position,0.2f);
+        if(curInteractive == null || curInteractive == other.gameObject)
+        {
+            int layer = LayerMask.NameToLayer("Interactive");
+            if (other.gameObject.layer == layer)
+            {
+                curInteractive = other.gameObject;
+                Debug.Log("stary: " + other.transform.name);
+            }
+        }
+    }
+
+    void OnTriggerExit(Collider other) 
+    {
+        curInteractive = null;
+        UIManager.DestroyUI();
+    }
+
+    void CheckInteractive()
+    {
+        if(curInteractive == null) return;
+
+        if(curInteractive.name.Contains("Leak"))
+        {
+            UIManager.GenerateUI(UIManager.FixBarPrefab,curInteractive.transform.position);
+        }
+        if(curInteractive.name.Contains("Machine"))
+        {
+            UIManager.GenerateUI(UIManager.SwitchBarPrefab,curInteractive.transform.position);
+        }
     }
 
 }

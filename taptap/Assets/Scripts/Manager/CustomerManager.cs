@@ -24,7 +24,7 @@ public class CustomerManager : MonoBehaviour
     {
         timer += Time.deltaTime;
 
-        if(CurrentCustomerCounts < MaxCustomerCounts && timer >= IntervalTime)
+        if(CurrentCustomerCounts < MaxCustomerCounts && timer >= Random.Range(10,20))
         {
             GameObject cus = GameObject.Instantiate(CustomerPrefab,CustomerStartPos);
             CurrentCustomerCounts++;

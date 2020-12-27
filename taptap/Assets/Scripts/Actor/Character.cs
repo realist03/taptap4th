@@ -19,7 +19,7 @@ public class Character : MonoBehaviour
 
     }
 
-    protected void FixedUpdate() 
+    protected virtual void FixedUpdate() 
     {
 
     }

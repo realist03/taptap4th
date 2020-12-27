@@ -17,6 +17,7 @@ public class WaterLevelPosition : MonoBehaviour
     public WaterManager waterManager;
     public WaterType waterType;
     public float TransformScale = 100;
+    public float TransformOffset = 0;
 
     private Vector3 oriPos;
 
@@ -24,6 +25,7 @@ public class WaterLevelPosition : MonoBehaviour
     void Start()
     {
         oriPos = transform.position;
+        TransformOffset = transform.position.y;
     }
 
     // Update is called once per frame
@@ -33,19 +35,19 @@ public class WaterLevelPosition : MonoBehaviour
         {
             case WaterType.DirtyWater:
                 transform.position = new Vector3(transform.position.x,
-                                                 -0.5f + TransformScale * (waterManager.CurrentDirtyWaterLevel/waterManager.MaxDirtyWaterLevel),
+                                                 TransformOffset + TransformScale * (waterManager.CurrentDirtyWaterLevel/waterManager.MaxDirtyWaterLevel),
                                                  transform.position.z);
             break;
 
             case WaterType.PureWater:
                 transform.position = new Vector3(transform.position.x,
-                                                 -0.5f + TransformScale * (waterManager.CurrentWaterPurifierWaterLevel/waterManager.MaxWaterPurifierWaterLevel),
+                                                 TransformOffset + TransformScale * (waterManager.CurrentWaterPurifierWaterLevel/waterManager.MaxWaterPurifierWaterLevel),
                                                  transform.position.z);
             break;
 
             case WaterType.HotWater:
                 transform.position = new Vector3(transform.position.x,
-                                                 -0.5f + TransformScale * (waterManager.CurrentBoilerWaterLevel/waterManager.MaxBoilerWaterLevel),
+                                                 TransformOffset + TransformScale * (waterManager.CurrentBoilerWaterLevel/waterManager.MaxBoilerWaterLevel),
                                                  transform.position.z);
             break;
 

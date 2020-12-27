@@ -6,12 +6,12 @@ public class LeakManager : MonoBehaviour
 {
     public GameObject LeakPrefab;
     public List<GameObject> InputingPipe;
-    public List<GameObject> PuringPipe;
-    public List<GameObject> BoilerPipe;
+    public List<GameObject> TransportingPipe;
+    public List<GameObject> OutputingPipe;
     
     public List<GameObject> InputingPipeLeak = new List<GameObject>();
-    public List<GameObject> PuringPipeLeak = new List<GameObject>();
-    public List<GameObject> BoilerPipeLeak = new List<GameObject>();
+    public List<GameObject> TransportingPipeLeak = new List<GameObject>();
+    public List<GameObject> OutputingPipeLeak = new List<GameObject>();
 
     [Range(0,1)]public float LeakProbability = 0.2f;
     public float checkInterval = 3;
@@ -29,7 +29,7 @@ public class LeakManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        InitLeakPipe();
     }
 
     // Update is called once per frame
@@ -40,8 +40,30 @@ public class LeakManager : MonoBehaviour
         timer2 += Time.deltaTime;
         LeakCheck();
         CheckPipe(isInputingLeak,InputingPipe,ref timer0,InputingPipeLeak);
-        CheckPipe(isPuringLeak,PuringPipe,ref timer1,PuringPipeLeak);
-        CheckPipe(isBoilerLeak,BoilerPipe,ref timer2,BoilerPipeLeak);
+        CheckPipe(isPuringLeak,TransportingPipe,ref timer1,TransportingPipeLeak);
+        CheckPipe(isBoilerLeak,OutputingPipe,ref timer2,OutputingPipeLeak);
+
+    }
+
+    void InitLeakPipe()
+    {
+        GameObject[] inputPipes = GameObject.FindGameObjectsWithTag("InputingPipe");
+        for (int i = 0; i < inputPipes.Length; i++)
+        {
+            InputingPipe.Add(inputPipes[i]);
+        }
+
+        GameObject[] transportingPipes = GameObject.FindGameObjectsWithTag("TransportingPipe");
+        for (int i = 0; i < transportingPipes.Length; i++)
+        {
+            TransportingPipe.Add(transportingPipes[i]);
+        }
+
+        GameObject[] outputingPipes = GameObject.FindGameObjectsWithTag("OutputingPipe");
+        for (int i = 0; i < outputingPipes.Length; i++)
+        {
+            OutputingPipe.Add(outputingPipes[i]);
+        }
 
     }
 
@@ -113,12 +135,12 @@ public class LeakManager : MonoBehaviour
         
         if(leak.transform.parent.name.Contains("Puring"))
         {
-            PuringPipeLeak.Remove(leak);
+            TransportingPipeLeak.Remove(leak);
         }
         
         if(leak.transform.parent.name.Contains("Boiler"))
         {
-            BoilerPipeLeak.Remove(leak);
+            OutputingPipeLeak.Remove(leak);
         }
         Destroy(leak);
 

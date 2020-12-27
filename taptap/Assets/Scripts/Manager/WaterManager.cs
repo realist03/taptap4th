@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class WaterManager : MonoBehaviour
 {
+    [Header("PoolWater")][Space(5)]
+    public float MaxPoolWaterLevel = 100;
+    public float CurrentPoolWaterLevel;
+
     [Header("DirtyWater")][Space(5)]
     public float MaxDirtyWaterLevel = 100;
     public float CurrentDirtyWaterLevel;
 
-    [Header("DirtyWater")][Space(5)]
+    [Header("PurifierWater")][Space(5)]
     public float MaxWaterPurifierWaterLevel = 100;
     public float CurrentWaterPurifierWaterLevel;
 
-    [Header("DirtyWater")][Space(5)]
+    [Header("BoilerWater")][Space(5)]
     public float MaxBoilerWaterLevel = 100;
     public float CurrentBoilerWaterLevel;
 
@@ -39,6 +43,7 @@ public class WaterManager : MonoBehaviour
     public bool isHeating;
     public bool isOutputing;
 
+    public bool isPoolFull;
     public bool isInputingFull;
     public bool isPuringFull;
     public bool isBoilerFull;
@@ -54,7 +59,7 @@ public class WaterManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        WaterLevelProcessing(isInputing, ref CurrentDirtyWaterLevel, MaxDirtyWaterLevel, InputSpeed);
+        WaterLevelTransporting(isInputing, ref CurrentDirtyWaterLevel, MaxDirtyWaterLevel, ref CurrentPoolWaterLevel, InputSpeed);
         
         WaterLevelTransporting(isPuring, ref CurrentWaterPurifierWaterLevel, MaxWaterPurifierWaterLevel, ref CurrentDirtyWaterLevel, PuringSpeed);
 
@@ -63,7 +68,7 @@ public class WaterManager : MonoBehaviour
         WaterTemperatureProcessing(true, CurrentBoilerWaterLevel, ref OutputWaterTemperature, CoolDownSpeed,RoomTemperature);
         WaterTemperatureProcessing(isHeating, CurrentBoilerWaterLevel, ref OutputWaterTemperature, HeatingSpeed,0);
 
-        WaterLevelProcessing(isOutputing, ref CurrentBoilerWaterLevel, MaxBoilerWaterLevel, OutputSpeed);
+        WaterLevelTransporting(isOutputing, ref CurrentPoolWaterLevel, 10000, ref CurrentBoilerWaterLevel, OutputSpeed);
 
         FullCheck();
         LeakCheck();
@@ -97,7 +102,7 @@ public class WaterManager : MonoBehaviour
 
     void WaterLevelTransporting(bool type, ref float level, float maxLevel, ref float minusLevel, float speed)
     {
-        if(type &&  minusLevel >= 0 && level < maxLevel)
+        if(type &&  minusLevel > 0 && level < maxLevel)
         {
             level += speed * Time.deltaTime;
             minusLevel -= speed * Time.deltaTime;
@@ -155,7 +160,7 @@ public class WaterManager : MonoBehaviour
 
         if(leakManager.isPuringLeak)
         {
-            for (int i = 0; i < leakManager.PuringPipeLeak.Count; i++)
+            for (int i = 0; i < leakManager.TransportingPipeLeak.Count; i++)
             {
                 WaterLevelProcessing(true, ref CurrentWaterPurifierWaterLevel, MaxWaterPurifierWaterLevel, LeakSpeed);
             }
@@ -163,7 +168,7 @@ public class WaterManager : MonoBehaviour
 
         if(leakManager.isBoilerLeak)
         {
-            for (int i = 0; i < leakManager.BoilerPipeLeak.Count; i++)
+            for (int i = 0; i < leakManager.OutputingPipeLeak.Count; i++)
             {
                 WaterLevelProcessing(true, ref CurrentBoilerWaterLevel, MaxBoilerWaterLevel, LeakSpeed);
             }

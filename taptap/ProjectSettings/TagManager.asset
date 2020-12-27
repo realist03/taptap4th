@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Leak
   - Machine
+  - InputingPipe
+  - TransportingPipe
+  - OutputingPipe
   layers:
   - Default
   - TransparentFX
